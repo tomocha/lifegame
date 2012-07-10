@@ -18,6 +18,11 @@ public class Const {
 		DEAD, ALIVE_G, ALIVE_R
 	}
 
+	/** 盤面の状態を表すenum. */
+	public enum GameState {
+		DOING, PAUSE
+	}
+
 	public static final String Xkey = "xkey";
 	public static final String Ykey = "ykey";
 

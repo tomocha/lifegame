@@ -58,9 +58,11 @@ public class LifeGameLogic {
 	}
 
 	public void sumpleInit() {
-		changeCell(2, 2);
-		changeCell(2, 3);
-		changeCell(2, 4);
+		changeCell(6, 5);
+		changeCell(7, 6);
+		changeCell(8, 7);
+		changeCell(9, 6);
+		changeCell(10, 5);
 	}
 
 	/**
@@ -231,9 +233,9 @@ public class LifeGameLogic {
 	 */
 	public List<CellState> getList() {
 		List<CellState> result = new ArrayList<CellState>();
-		for (int x = 1; x < mNewCell.length - 1; x++) {
-			for (int y = 1; y < mNewCell[x].length - 1; y++) {
-				result.add(mNewCell[x][y]);
+		for (int x = 1; x < mOldCell.length - 1; x++) {
+			for (int y = 1; y < mOldCell[x].length - 1; y++) {
+				result.add(mOldCell[x][y]);
 			}
 		}
 		return result;

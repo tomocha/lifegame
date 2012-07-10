@@ -31,7 +31,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:inputType="number" />
+                    android:inputType="number" android:hint="15で固定中です..."/>
 
             </LinearLayout>
 
@@ -51,7 +51,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:inputType="number" >
+                    android:inputType="number" android:hint="15で固定中です...">
 
                     <requestFocus />
                 </EditText>
@@ -67,6 +67,15 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="45dp"
             android:text="Start" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/linearLayout3"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="63dp"
+            android:text="LifeGame的な" />
 
     </RelativeLayout>
 
