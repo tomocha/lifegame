@@ -21,6 +21,8 @@ public class LifeGameLogic {
 	Const.CellState[][] mOldCell;
 	/** 世代交代後のセル. */
 	Const.CellState[][] mNewCell;
+	private int ALL_COUNT = 0;
+	private int RED_COUNT = 1;
 
 	/**
 	 * コンストラクタ.
@@ -57,14 +59,6 @@ public class LifeGameLogic {
 		}
 	}
 
-	public void sumpleInit() {
-		changeCell(6, 5);
-		changeCell(7, 6);
-		changeCell(8, 7);
-		changeCell(9, 6);
-		changeCell(10, 5);
-	}
-
 	/**
 	 * 指定されたセルが次の世代で生きているかどうかを返すメソッド.
 	 * 
@@ -76,15 +70,23 @@ public class LifeGameLogic {
 	 */
 	protected final CellState deadOrAlive(final int x, final int y) {
 		CellState state = CellState.DEAD;
-		switch (lifeCount(x, y)) {
-		case 3: // 自分含めて周り9マスが3つ生きているときは誕生
-			state = CellState.ALIVE_G;
-			// TODO 赤緑判定
+		int[] lifeCounts = lifeCount(x, y);
+		switch (lifeCounts[ALL_COUNT]) {
+		// case 6:// 周り3~6つが生きているときでREDが3つある場合はRが誕生する
+		// case 5:
+		// case 4:
+		case 3:
+			if (lifeCounts[RED_COUNT] > 0) {
+				state = CellState.ALIVE_R;
+			} else {
+				state = CellState.ALIVE_G;
+			}
 			break;
 		case 2: // 2の場合は変わらず
 			state = mOldCell[x][y];
 			break;
 		default: // それ以外は死ぬ
+			state = CellState.DEAD;
 			break;
 		}
 		return state;
@@ -159,6 +161,38 @@ public class LifeGameLogic {
 	}
 
 	/**
+	 * 現世代の指定座標の状態によりintを返す.
+	 * 
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
+	 * @return int
+	 */
+	public int getOldCellIntG(int x, int y) {
+		if (mOldCell[x][y] == Const.CellState.ALIVE_G) {
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * 現世代の指定座標の状態によりintを返す.
+	 * 
+	 * @param x
+	 *            x
+	 * @param y
+	 *            y
+	 * @return int
+	 */
+	public int getOldCellIntR(int x, int y) {
+		if (mOldCell[x][y] == Const.CellState.ALIVE_R) {
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
 	 * 指定セルの周りの生きているセルの数をカウントするメソッド.
 	 * 
 	 * @param x
@@ -167,8 +201,10 @@ public class LifeGameLogic {
 	 *            y
 	 * @return
 	 */
-	protected int lifeCount(int x, int y) {
-		return xDetaction(0, x - 1, y - 1, x, y) - getOldCellInt(x, y);
+	protected int[] lifeCount(int x, int y) {
+		int[] lifeCounts = xDetaction(new int[] { 0, 0 }, x - 1, y - 1, x, y);
+		return new int[] { lifeCounts[ALL_COUNT] - getOldCellInt(x, y),
+		        lifeCounts[RED_COUNT] };
 	}
 
 	/**
@@ -181,12 +217,14 @@ public class LifeGameLogic {
 	 * @param y
 	 * @return
 	 */
-	private int xDetaction(int lifeCount, final int j, final int k,
+	private int[] xDetaction(int[] lifeCount, final int j, final int k,
 	        final int x, final int y) {
 		if (j == x + 2) {
 			return lifeCount;
 		}
-		lifeCount += yDetaction(0, j, k, x, y);
+		int[] lifeCounts = yDetaction(new int[] { 0, 0 }, j, k, x, y);
+		lifeCount[ALL_COUNT] += lifeCounts[ALL_COUNT];
+		lifeCount[RED_COUNT] += lifeCounts[RED_COUNT];
 		return xDetaction(lifeCount, j + 1, k, x, y);
 	}
 
@@ -200,11 +238,12 @@ public class LifeGameLogic {
 	 * @param y
 	 * @return
 	 */
-	private int yDetaction(int lifeCount, int j, int k, int x, int y) {
+	private int[] yDetaction(int[] lifeCount, int j, int k, int x, int y) {
 		if (k == y + 2) {
 			return lifeCount;
 		}
-		lifeCount += getOldCellInt(j, k);
+		lifeCount[ALL_COUNT] += getOldCellInt(j, k);
+		lifeCount[RED_COUNT] += getOldCellIntR(j, k);
 		return yDetaction(lifeCount, j, k + 1, x, y);
 	}
 

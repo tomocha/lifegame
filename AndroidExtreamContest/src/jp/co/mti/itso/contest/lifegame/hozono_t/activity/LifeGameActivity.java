@@ -48,7 +48,6 @@ public class LifeGameActivity extends Activity implements OnClickListener,
 		mGameState = GameState.PAUSE;
 
 		mLogic = new LifeGameLogic(x, y);
-		// mLogic.sumpleInit();
 		mGrid = (GridView) findViewById(R.id.lifeGrid);
 		mGrid.setNumColumns(x);
 		mLogic.changeState();
