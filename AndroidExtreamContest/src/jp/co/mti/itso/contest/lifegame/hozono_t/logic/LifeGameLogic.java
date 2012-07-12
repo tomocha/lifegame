@@ -253,6 +253,7 @@ public class LifeGameLogic {
 	 * @return newcell
 	 */
 	public Const.CellState[][] getNewCell() {
+		changeState();
 		return mNewCell;
 	}
 

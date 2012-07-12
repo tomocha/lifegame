@@ -1,67 +1,116 @@
 package jp.co.mti.itso.contest.lifegame.hozono_t.activity;
 
-import java.util.List;
-
-import jp.co.mti.itso.contest.lifegame.hozono_t.R;
 import jp.co.mti.itso.contest.lifegame.hozono_t.logic.Const.CellState;
 import jp.co.mti.itso.contest.lifegame.hozono_t.logic.Const.GameState;
 import jp.co.mti.itso.contest.lifegame.hozono_t.logic.LifeGameLogic;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class LifeGameActivity extends Activity implements OnClickListener,
-        OnItemClickListener {
+public class LifeGameActivity extends Activity implements OnClickListener {
 
 	private LifeGameLogic mLogic;
-
-	private GridView mGrid;
 
 	private GameState mGameState;
 
 	private Thread mGameThread;
 	private Handler mHandler;
-	ArrayAdapter<CellState> mAdapter;
-
 	int x = 15;
 	int y = 15;
+
+	private TextView[][] mCellList;
 
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
-
-		Button btn = (Button) findViewById(R.id.button1);
-		btn.setOnClickListener(this);
-		mGameState = GameState.PAUSE;
 
 		mLogic = new LifeGameLogic(x, y);
-		mGrid = (GridView) findViewById(R.id.lifeGrid);
-		mGrid.setNumColumns(x);
-		mLogic.changeState();
-		mAdapter = new MyAdapter(getApplicationContext(), R.layout.item,
-		        mLogic.getList());
-		mGrid.setAdapter(mAdapter);
-		mGrid.setOnItemClickListener(this);
+		mGameState = GameState.PAUSE;
+		mCellList = new TextView[x][y];
+		// TODO intentからxy取得処理
+
+		// レイアウトを作る
+		LinearLayout parentLayout = new LinearLayout(getApplicationContext());
+		parentLayout.setOrientation(LinearLayout.VERTICAL);
+		parentLayout.setBackgroundColor(android.graphics.Color.WHITE);
+
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+		        LinearLayout.LayoutParams.WRAP_CONTENT,
+		        LinearLayout.LayoutParams.WRAP_CONTENT);
+		layoutParams.setMargins(1, 0, 0, 0);
+		for (int i = 0; i < x; i++) {
+			LinearLayout xLayout = new LinearLayout(getApplicationContext());
+			xLayout.setPadding(0, 1, 0, 0);
+			for (int j = 0; j < x; j++) {
+				final int xCell = i + 1;
+				final int yCell = j + 1;
+				TextView cell = new TextView(getApplicationContext());
+				// TODO xセル数/画面幅で1セル何ピクセルか計算する
+				cell.setWidth(30);
+				cell.setHeight(30);
+				cell.setLayoutParams(layoutParams);
+				cell.setBackgroundColor(android.graphics.Color.BLACK);
+				cell.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						mLogic.changeCell(xCell, yCell);
+						Log.v("changeCell", "[" + Integer.toString(xCell) + "]"
+						        + "[" + Integer.toString(yCell) + "] is "
+						        + mLogic.getOldCell()[xCell][yCell]);
+						switch (mLogic.getOldCell()[xCell][yCell]) {
+						case ALIVE_G:
+							v.setBackgroundColor(android.graphics.Color.GREEN);
+							break;
+						case ALIVE_R:
+							v.setBackgroundColor(android.graphics.Color.RED);
+							break;
+						default:
+							v.setBackgroundColor(android.graphics.Color.BLACK);
+							break;
+						}
+					}
+				});
+				xLayout.addView(cell);
+				mCellList[i][j] = cell;
+			}
+			parentLayout.addView(xLayout);
+		}
+
+		Button btn = new Button(getApplicationContext());
+		btn.setOnClickListener(this);
+		btn.setText("START!");
+		parentLayout.addView(btn);
+		setContentView(parentLayout);
 	}
 
+	/**
+	 * 表示を更新する
+	 */
 	public void invalidateView() {
-		mLogic.changeState();
-		mAdapter = new MyAdapter(getApplicationContext(), R.layout.item,
-		        mLogic.getList());
-		mGrid.setAdapter(mAdapter);
+		CellState[][] state = mLogic.getNewCell();
+		for (int i = 0; i < x; i++) {
+			for (int j = 0; j < y; j++) {
+				int color = android.graphics.Color.BLACK;
+				switch (state[i + 1][j + 1]) {
+				case ALIVE_G:
+					color = android.graphics.Color.GREEN;
+					break;
+				case ALIVE_R:
+					color = android.graphics.Color.RED;
+					break;
+				default:
+					break;
+				}
+				mCellList[i][j].setBackgroundColor(color);
+			}
+		}
 	}
 
 	@Override
@@ -70,6 +119,8 @@ public class LifeGameActivity extends Activity implements OnClickListener,
 		update();
 	}
 
+	// TODO AsyncTaskにする
+	/** update用のハンドラー起動 */
 	public void update() {
 		mHandler = new Handler();
 		new Thread(new Runnable() {
@@ -90,64 +141,5 @@ public class LifeGameActivity extends Activity implements OnClickListener,
 				}
 			}
 		}).start();
-	}
-
-	static class ViewHolder {
-		TextView textView;
-	}
-
-	public class MyAdapter extends ArrayAdapter<CellState> {
-		private LayoutInflater inflater;
-		private int layoutId;
-
-		public MyAdapter(Context context, int layoutId, List<CellState> list) {
-			super(context, layoutId, list);
-			this.inflater = (LayoutInflater) context
-			        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			this.layoutId = layoutId;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			ViewHolder holder;
-
-			if (convertView == null) {
-				convertView = inflater.inflate(layoutId, parent, false);
-				holder = new ViewHolder();
-				holder.textView = (TextView) convertView
-				        .findViewById(R.id.cellText);
-				convertView.setTag(holder);
-			} else {
-				holder = (ViewHolder) convertView.getTag();
-			}
-			CellState data = getItem(position);
-			switch (data) {
-			case DEAD:
-				holder.textView
-				        .setBackgroundColor(android.graphics.Color.BLACK);
-				break;
-			case ALIVE_G:
-				holder.textView
-				        .setBackgroundColor(android.graphics.Color.GREEN);
-				break;
-			case ALIVE_R:
-				holder.textView.setBackgroundColor(android.graphics.Color.RED);
-				break;
-			default:
-				break;
-			}
-			return convertView;
-		}
-	}
-
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,
-	        long id) {
-		int changeX = (position / x) + 1;
-		int changeY = (position % x) + 1;
-		mLogic.changeCell(changeX, changeY);
-		mAdapter = new MyAdapter(getApplicationContext(), R.layout.item,
-		        mLogic.getList());
-		mGrid.setAdapter(mAdapter);
 	}
 }
