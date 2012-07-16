@@ -72,18 +72,21 @@ public class LifeGameLogic {
 		CellState state = CellState.DEAD;
 		int[] lifeCounts = lifeCount(x, y);
 		switch (lifeCounts[ALL_COUNT]) {
-		// case 6:// 周り3~6つが生きているときでREDが3つある場合はRが誕生する
-		// case 5:
-		// case 4:
+		case 6:// 周り3~6つが生きているときでREDが3つある場合はRが誕生する
+		case 5:
+		case 4:
 		case 3:
-			if (lifeCounts[RED_COUNT] > 0) {
+		case 2:
+			if (lifeCounts[RED_COUNT] == 3) {
 				state = CellState.ALIVE_R;
-			} else {
+			} else if (lifeCounts[ALL_COUNT] - lifeCounts[RED_COUNT] == 3) {
 				state = CellState.ALIVE_G;
+			} else if (lifeCounts[RED_COUNT] == 2
+			        || lifeCounts[ALL_COUNT] - lifeCounts[RED_COUNT] == 2) {
+				state = mOldCell[x][y];
+			} else {
+				state = CellState.DEAD;
 			}
-			break;
-		case 2: // 2の場合は変わらず
-			state = mOldCell[x][y];
 			break;
 		default: // それ以外は死ぬ
 			state = CellState.DEAD;
