@@ -7,9 +7,6 @@ import jp.co.mti.itso.contest.lifegame.hozono_t.logic.Const.CellState;
 
 /**
  * ロジッククラス.
- * 
- * @author $Author: mti_user05 $
- * @version $Revision: 5 $
  */
 public class LifeGameLogic {
 
@@ -28,9 +25,7 @@ public class LifeGameLogic {
 	 * コンストラクタ.
 	 * 
 	 * @param x
-	 *            xセルの数
 	 * @param y
-	 *            yセルの数
 	 */
 	public LifeGameLogic(int x, int y) {
 		// 1枠大きく作って、実際の盤面は入力のまま作る
@@ -63,20 +58,15 @@ public class LifeGameLogic {
 	 * 指定されたセルが次の世代で生きているかどうかを返すメソッド.
 	 * 
 	 * @param x
-	 *            x座標
 	 * @param y
-	 *            y座標
 	 * @return deadOrAlive 生きているか死んでいるか
 	 */
 	protected final CellState deadOrAlive(final int x, final int y) {
 		CellState state = CellState.DEAD;
 		int[] lifeCounts = lifeCount(x, y);
-		switch (lifeCounts[ALL_COUNT]) {
-		case 6:// 周り3~6つが生きているときでREDが3つある場合はRが誕生する
-		case 5:
-		case 4:
-		case 3:
-		case 2:
+		if (lifeCounts[ALL_COUNT] == 1) {
+			state = CellState.DEAD;
+		} else {
 			if (lifeCounts[RED_COUNT] == 3) {
 				state = CellState.ALIVE_R;
 			} else if (lifeCounts[ALL_COUNT] - lifeCounts[RED_COUNT] == 3) {
@@ -87,10 +77,6 @@ public class LifeGameLogic {
 			} else {
 				state = CellState.DEAD;
 			}
-			break;
-		default: // それ以外は死ぬ
-			state = CellState.DEAD;
-			break;
 		}
 		return state;
 	}
@@ -99,11 +85,8 @@ public class LifeGameLogic {
 	 * セルの状態を変更する.
 	 * 
 	 * @param x
-	 *            x
 	 * @param y
-	 *            y
 	 * @param lifeCount
-	 *            lifecount
 	 * @return 成功:true
 	 */
 	public final boolean changeState() {
@@ -125,9 +108,7 @@ public class LifeGameLogic {
 	 * タップ時に指定したセルの状態を変更する.
 	 * 
 	 * @param x
-	 *            x
 	 * @param y
-	 *            y
 	 * @return 成功:true
 	 */
 	public final boolean changeCell(final int x, final int y) {
@@ -151,9 +132,7 @@ public class LifeGameLogic {
 	 * 現世代の指定座標の状態によりintを返す.
 	 * 
 	 * @param x
-	 *            x
 	 * @param y
-	 *            y
 	 * @return int
 	 */
 	public int getOldCellInt(int x, int y) {
@@ -167,9 +146,7 @@ public class LifeGameLogic {
 	 * 現世代の指定座標の状態によりintを返す.
 	 * 
 	 * @param x
-	 *            x
 	 * @param y
-	 *            y
 	 * @return int
 	 */
 	public int getOldCellIntG(int x, int y) {
@@ -183,9 +160,7 @@ public class LifeGameLogic {
 	 * 現世代の指定座標の状態によりintを返す.
 	 * 
 	 * @param x
-	 *            x
 	 * @param y
-	 *            y
 	 * @return int
 	 */
 	public int getOldCellIntR(int x, int y) {
@@ -199,9 +174,7 @@ public class LifeGameLogic {
 	 * 指定セルの周りの生きているセルの数をカウントするメソッド.
 	 * 
 	 * @param x
-	 *            x
 	 * @param y
-	 *            y
 	 * @return
 	 */
 	protected int[] lifeCount(int x, int y) {
