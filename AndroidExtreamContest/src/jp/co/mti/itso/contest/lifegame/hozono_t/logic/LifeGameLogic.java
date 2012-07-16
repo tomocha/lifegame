@@ -180,7 +180,7 @@ public class LifeGameLogic {
 	protected int[] lifeCount(int x, int y) {
 		int[] lifeCounts = xDetaction(new int[] { 0, 0 }, x - 1, y - 1, x, y);
 		return new int[] { lifeCounts[ALL_COUNT] - getOldCellInt(x, y),
-		        lifeCounts[RED_COUNT] };
+		        lifeCounts[RED_COUNT] - getOldCellIntR(x, y) };
 	}
 
 	/**
