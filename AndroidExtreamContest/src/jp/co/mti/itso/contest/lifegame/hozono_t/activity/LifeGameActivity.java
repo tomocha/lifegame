@@ -19,8 +19,9 @@ public class LifeGameActivity extends Activity implements OnClickListener {
 
 	private GameState mGameState;
 
-	private Thread mGameThread;
 	private Handler mHandler;
+
+	private Button mStartBtn;
 	int x = 15;
 	int y = 15;
 
@@ -83,10 +84,11 @@ public class LifeGameActivity extends Activity implements OnClickListener {
 			parentLayout.addView(xLayout);
 		}
 
-		Button btn = new Button(getApplicationContext());
-		btn.setOnClickListener(this);
-		btn.setText("START!");
-		parentLayout.addView(btn);
+		mStartBtn = new Button(getApplicationContext());
+		mStartBtn.setOnClickListener(this);
+		mStartBtn.setText("START!");
+		mStartBtn.setTag("start_stopBtn");
+		parentLayout.addView(mStartBtn);
 		setContentView(parentLayout);
 	}
 
@@ -114,19 +116,28 @@ public class LifeGameActivity extends Activity implements OnClickListener {
 	}
 
 	@Override
-	public void onClick(View arg0) {
-		// TODO GameStateによるstop/start
-		update();
+	public void onClick(View v) {
+		if (!v.getTag().equals("start_stopBtn")) {
+			return;
+			// 何もしない
+		}
+		if (mGameState == GameState.PAUSE) {
+			update();
+			mGameState = GameState.DOING;
+			mStartBtn.setText("STOP");
+		} else {
+			mGameState = GameState.PAUSE;
+			mStartBtn.setText("START");
+		}
 	}
 
-	// TODO AsyncTaskにする
 	/** update用のハンドラー起動 */
 	public void update() {
 		mHandler = new Handler();
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				while (true) {
+				while (mGameState == GameState.DOING) {
 					mHandler.post(new Runnable() {
 						@Override
 						public void run() {
