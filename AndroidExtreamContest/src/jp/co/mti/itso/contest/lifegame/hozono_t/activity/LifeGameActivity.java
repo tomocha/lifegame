@@ -1,14 +1,19 @@
 package jp.co.mti.itso.contest.lifegame.hozono_t.activity;
 
+import jp.co.mti.itso.contest.lifegame.hozono_t.logic.Const;
 import jp.co.mti.itso.contest.lifegame.hozono_t.logic.Const.CellState;
 import jp.co.mti.itso.contest.lifegame.hozono_t.logic.Const.GameState;
 import jp.co.mti.itso.contest.lifegame.hozono_t.logic.LifeGameLogic;
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,9 +27,10 @@ public class LifeGameActivity extends Activity implements OnClickListener {
 	private Handler mHandler;
 
 	private Button mStartBtn;
-	int x = 15;
-	int y = 15;
+	int x;
+	int y;
 
+	private int mCellPixel;
 	private TextView[][] mCellList;
 
 	/** Called when the activity is first created. */
@@ -32,16 +38,39 @@ public class LifeGameActivity extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		// intentからxy取得処理
+		Intent intent = getIntent();
+		x = intent.getIntExtra(Const.Xkey, 15);
+		y = intent.getIntExtra(Const.Ykey, 15);
+
+		// 画面に合うように1cellを計算する
+		WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+		Display disp = wm.getDefaultDisplay();
+		int cellWidth = disp.getWidth() / y - 1;
+		int cellHeight = (disp.getHeight() - 60) / x - 1;
+		if (cellWidth > cellHeight) {
+			mCellPixel = cellHeight;
+		} else {
+			mCellPixel = cellWidth;
+		}
+
 		mLogic = new LifeGameLogic(x, y);
 		mGameState = GameState.PAUSE;
 		mCellList = new TextView[x][y];
-		// TODO intentからxy取得処理
 
 		// レイアウトを作る
 		LinearLayout parentLayout = new LinearLayout(getApplicationContext());
 		parentLayout.setOrientation(LinearLayout.VERTICAL);
 		parentLayout.setBackgroundColor(android.graphics.Color.WHITE);
 
+		// スタートボタン
+		mStartBtn = new Button(getApplicationContext());
+		mStartBtn.setOnClickListener(this);
+		mStartBtn.setText("START!");
+		mStartBtn.setTag("start_stopBtn");
+		parentLayout.addView(mStartBtn);
+
+		// 格セルの作成
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 		        LinearLayout.LayoutParams.WRAP_CONTENT,
 		        LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -49,13 +78,12 @@ public class LifeGameActivity extends Activity implements OnClickListener {
 		for (int i = 0; i < x; i++) {
 			LinearLayout xLayout = new LinearLayout(getApplicationContext());
 			xLayout.setPadding(0, 1, 0, 0);
-			for (int j = 0; j < x; j++) {
+			for (int j = 0; j < y; j++) {
 				final int xCell = i + 1;
 				final int yCell = j + 1;
 				TextView cell = new TextView(getApplicationContext());
-				// TODO xセル数/画面幅で1セル何ピクセルか計算する
-				cell.setWidth(30);
-				cell.setHeight(30);
+				cell.setWidth(mCellPixel);
+				cell.setHeight(mCellPixel);
 				cell.setLayoutParams(layoutParams);
 				cell.setBackgroundColor(android.graphics.Color.BLACK);
 				cell.setOnClickListener(new OnClickListener() {
@@ -84,11 +112,6 @@ public class LifeGameActivity extends Activity implements OnClickListener {
 			parentLayout.addView(xLayout);
 		}
 
-		mStartBtn = new Button(getApplicationContext());
-		mStartBtn.setOnClickListener(this);
-		mStartBtn.setText("START!");
-		mStartBtn.setTag("start_stopBtn");
-		parentLayout.addView(mStartBtn);
 		setContentView(parentLayout);
 	}
 

@@ -24,14 +24,14 @@
                     android:id="@+id/textView1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="縦" />
+                    android:text="よこ " />
 
                 <EditText
                     android:id="@+id/editHori"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:inputType="number" android:hint="15で固定中です..."/>
+                    android:inputType="number"/>
 
             </LinearLayout>
 
@@ -44,14 +44,14 @@
                     android:id="@+id/textView2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="横" />
+                    android:text="たて " />
 
                 <EditText
                     android:id="@+id/editVer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:inputType="number" android:hint="15で固定中です...">
+                    android:inputType="number">
 
                     <requestFocus />
                 </EditText>
